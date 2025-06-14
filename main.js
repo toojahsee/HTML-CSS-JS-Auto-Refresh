@@ -149,7 +149,7 @@ const planeMaterial = new THREE.ShaderMaterial({
 });
 
 // 加载飞机模型
-new GLTFLoader().load('scene.gltf', gltf=>{
+new GLTFLoader().load('/models/scene.gltf', gltf=>{
   paperPlane = gltf.scene;
   paperPlane.scale.set(100,100,100);
   paperPlane.position.copy(originalPosition);
