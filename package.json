@@ -1,11 +1,16 @@
 {
   "name": "glb-viewer",
+  "version": "1.0.0",
   "type": "module",
+  "description": "A Three.js GLB viewer with air pressure simulation, deployed with Vite",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
+  "keywords": ["three.js", "vite", "GLTF", "GLB", "3D", "webgl"],
+  "author": "your-name",
+  "license": "MIT",
   "dependencies": {
     "three": "^0.160.1"
   },
