@@ -1,7 +1,7 @@
 run = "vite"
 entrypoint = "index.html"
 hidden = [".config"]
-modules = ["nodejs-18", "web"]
+modules = ["nodejs-18", "python-3.11", "web"]
 
 [nix]
 channel = "stable-23_05"
@@ -14,3 +14,13 @@ publicDir = "dist"
 [[ports]]
 localPort = 5173
 externalPort = 80
+exposeLocalhost = true
+
+[[ports]]
+localPort = 5174
+externalPort = 3000
+exposeLocalhost = true
+
+[[ports]]
+localPort = 8000
+externalPort = 8000

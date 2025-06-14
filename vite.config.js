@@ -1,10 +1,4 @@
-import { defineConfig } from 'vite';
-
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [],
-  server: {
-    host: '0.0.0.0',
-    hmr: true, // Change this line to false disable auto-refreshing.
-  }
-})
+// 可省略：Vite 默认支持静态资源加载 .glb
+export default {
+  assetsInclude: ['**/*.glb']
+}
