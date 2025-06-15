@@ -52,7 +52,11 @@ scene.add(ground);
 const groundY = 0;
 
 // —— 科幻边界框 ——
-const flightBounds = { xMin:-5e6,xMax:5e6,yMin:0,yMax:1e7,zMin:-5e6,zMax:5e6 };
+const flightBounds = {
+  xMin: -5e6, xMax: 5e6,
+  yMin: 0, yMax: 1e7,
+  zMin: -5e6, zMax: 5e6
+};
 const boundaryGeo = new THREE.BoxGeometry(
   flightBounds.xMax - flightBounds.xMin,
   flightBounds.yMax - flightBounds.yMin,
@@ -117,7 +121,7 @@ function createAirflowLines(offsetY, color, count = 12){
     const geo = new THREE.BufferGeometry().setFromPoints(pts);
     geo.attributes.position.setUsage(THREE.DynamicDrawUsage);
     g.add(new THREE.Line(geo,
-      new THREE.LineBasicMaterial({ color, transparent:true, opacity:0.6 })
+      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.6 })
     ));
   }
   return g;
@@ -127,8 +131,8 @@ function updateAirflow(g, speed){
   g.children.forEach(line => {
     const pos = line.geometry.attributes.position;
     for(let i = 0; i < pos.count; i++){
-      pos.array[i*3] += speed;
-      if(pos.array[i*3] > 5000) pos.array[i*3] = -5000;
+      pos.array[i * 3] += speed;
+      if(pos.array[i * 3] > 5000) pos.array[i * 3] = -5000;
     }
     pos.needsUpdate = true;
   });
@@ -136,7 +140,8 @@ function updateAirflow(g, speed){
 
 // 提示 UI
 const hint = document.createElement('div');
-hint.style.cssText = 'position:absolute;top:20px;left:50%;transform:translateX(-50%);' +
+hint.style.cssText =
+  'position:absolute;top:20px;left:50%;transform:translateX(-50%);' +
   'padding:5px 10px;background:rgba(0,0,0,0.6);color:#fff;' +
   'font-family:sans-serif;border-radius:4px;display:none;';
 hint.innerText = '⚠️ 飞出边界，正在重置…';
@@ -146,7 +151,8 @@ document.body.appendChild(hint);
 const planeMaterial = new THREE.ShaderMaterial({
   vertexShader: `
     varying float vY;
-    void main(){ vY = position.y;
+    void main(){
+      vY = position.y;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
     }
   `,
@@ -164,7 +170,7 @@ const planeMaterial = new THREE.ShaderMaterial({
 // 加载飞机模型
 new GLTFLoader().load('/models/scene.gltf', gltf => {
   paperPlane = gltf.scene;
-  paperPlane.scale.set(100,100,100);
+  paperPlane.scale.set(100, 100, 100);
   paperPlane.position.copy(originalPosition);
   paperPlane.traverse(o => {
     if(o.isMesh){
@@ -185,38 +191,16 @@ function startReset(){
   hint.style.display = 'block';
 }
 
-// WASD 镜头控制状态
-const keyState = { w:false, a:false, s:false, d:false };
-window.addEventListener('keydown', e => {
-  if (e.key === 'w') keyState.w = true;
-  if (e.key === 'a') keyState.a = true;
-  if (e.key === 's') keyState.s = true;
-  if (e.key === 'd') keyState.d = true;
-});
-window.addEventListener('keyup', e => {
-  if (e.key === 'w') keyState.w = false;
-  if (e.key === 'a') keyState.a = false;
-  if (e.key === 's') keyState.s = false;
-  if (e.key === 'd') keyState.d = false;
-});
-
-// 主动画循环
+// 主循环
 function animate(){
   requestAnimationFrame(animate);
-  const delta = clock.getDelta();
 
-  // OrbitControls 更新
+  const delta = clock.getDelta(); // 帧时间差
+
   controls.update();
   glowMaterial.uniforms.time.value += delta;
   sun.rotateY(0.0005 * delta * 60);
   dirLight.position.copy(sun.position);
-
-  // WASD 控制镜头移动
-  const camSpeed = 2000 * delta;
-  if(keyState.w) camera.position.z -= camSpeed;
-  if(keyState.s) camera.position.z += camSpeed;
-  if(keyState.a) camera.position.x -= camSpeed;
-  if(keyState.d) camera.position.x += camSpeed;
 
   if(paperPlane){
     if(isResetting){
@@ -232,13 +216,15 @@ function animate(){
       }
     } else {
       if(isPaused && P_bawah > P_atas){
-        isPaused = false; velocity = 200000;
+        isPaused = false;
+        velocity = 200000;
       }
       if(!isPaused){
         flyTime += delta;
         velocity = Math.min(velocity + acceleration * delta * 60, maxVelocity);
         const diff = P_bawah - P_atas;
 
+        // 恢复 x 移动
         paperPlane.position.x += velocity * delta;
 
         paperPlane.remove(airflowAtas);
@@ -261,15 +247,14 @@ function animate(){
         }
 
         const pos = paperPlane.position;
-        if(pos.y <= groundY + 10){
-          isPaused = true;
-          velocity = 0;
-        }
-        if(pos.x < flightBounds.xMin ||
-           pos.x > flightBounds.xMax ||
-           pos.y > flightBounds.yMax ||
-           pos.z < flightBounds.zMin ||
-           pos.z > flightBounds.zMax){
+        if(pos.y <= groundY + 10){ isPaused = true; velocity = 0; }
+        if(
+          pos.x < flightBounds.xMin ||
+          pos.x > flightBounds.xMax ||
+          pos.y > flightBounds.yMax ||
+          pos.z < flightBounds.zMin ||
+          pos.z > flightBounds.zMax
+        ){
           startReset();
         }
       }
