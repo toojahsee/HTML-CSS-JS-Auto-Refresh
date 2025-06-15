@@ -87,7 +87,7 @@ scene.add(boundaryGlow);
 // —— 飞机与气流设置 ——
 let paperPlane = null, airflowAtas = null, airflowBawah = null;
 let flyTime = 0, velocity = 2000;
-const maxVelocity = 1000, acceleration = 0.01;
+const maxVelocity = 3000, acceleration = 0.01;
 const originalPosition = new THREE.Vector3(0, 250000, 0);
 let isPaused = false, isResetting = false, resetProgress = 0;
 const resetDuration = 2, resetStart = new THREE.Vector3();
@@ -211,7 +211,7 @@ function animate(){
 
           // 机头倾斜效果：根据 lift 倾斜
           const pitchAngle = THREE.MathUtils.clamp(lift * 0.0001, -0.3, 0.3); // 适当限制角度
-          paperPlane.rotation.x = -pitchAngle;
+        
 
           paperPlane.rotation.z = pitchAngle;
 
