@@ -7,7 +7,7 @@ import { createGround } from './ground.js';
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87CEEB);
 
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 1e7);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 2000, 1e7);
 camera.position.set(0, 2600, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -187,14 +187,14 @@ function animate(){
       if(resetProgress>=1){
         isResetting=false;
         paperPlane.position.copy(originalPosition);
-        flyTime = 0; velocity = 200;
+        flyTime = 0; velocity = 2000;
         hint.style.display='none';
       } else {
         paperPlane.position.lerpVectors(resetStart, originalPosition, resetProgress);
       }
     } else {
       if(isPaused && P_bawah > P_atas){
-        isPaused = false; velocity = 200;
+        isPaused = false; velocity = 2000;
       }
       if(!isPaused){
         flyTime += 0.02;
