@@ -1,41 +1,48 @@
 import * as THREE from 'three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
-export function createGround({
-  size = 8000000,
-  thickness = 2000,
-  baseColor = 0x228B22,
-  topColor = 0x44cc66, // 渐变到这个颜色
+export async function createGround({
+  url = 'https://github.com/toojahsee/Connect.github/raw/refs/heads/master/public/mountains.obj',
+  targetSize = 8000000,
   receiveShadow = true,
 } = {}) {
-  // ✅ 创建地面几何体
-  const geometry = new THREE.BoxGeometry(size, thickness, size);
+  return new Promise((resolve, reject) => {
+    const loader = new OBJLoader();
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error('加载失败: ' + res.status);
+        return res.text();
+      })
+      .then(objText => {
+        const model = loader.parse(objText);
 
-  // ✅ 顶点颜色渐变：使用顶点颜色实现从中心向外的渐变效果
-  const colors = [];
-  const positionAttr = geometry.attributes.position;
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.receiveShadow = receiveShadow;
+            child.castShadow = false;
+          }
+        });
 
-  for (let i = 0; i < positionAttr.count; i++) {
-    const y = positionAttr.getY(i);
-    const ratio = (y + thickness / 2) / thickness; // bottom=0, top=1
+        // 自动缩放模型使其最大尺寸为 targetSize
+        const box = new THREE.Box3().setFromObject(model);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = targetSize / maxDim;
+        model.scale.setScalar(scale);
 
-    const color = new THREE.Color(baseColor).lerp(new THREE.Color(topColor), ratio);
-    colors.push(color.r, color.g, color.b);
-  }
+        // 将模型放到地面上（底部贴地）
+        const newBox = new THREE.Box3().setFromObject(model);
+        const yOffset = newBox.min.y;
+        model.position.y -= yOffset;
 
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-  const material = new THREE.MeshStandardMaterial({
-    vertexColors: true,
-    roughness: 0.9,
-    metalness: 0.1
+        const group = new THREE.Group();
+        group.add(model);
+        resolve(group);
+      })
+      .catch(err => {
+        console.error('地面模型加载失败:', err);
+        reject(err);
+      });
   });
-
-  const groundBox = new THREE.Mesh(geometry, material);
-  groundBox.position.y = -thickness / 2;
-  groundBox.receiveShadow = receiveShadow;
-
-  const group = new THREE.Group();
-  group.add(groundBox);
-
-  return group;
 }
