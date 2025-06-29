@@ -1,6 +1,12 @@
+// vite.config.js
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: './', // Render 部署关键路径设置
-  assetsInclude: ['**/*.obj', '**/*.gltf', '**/*.bin'], // 可加载 GLTF / BIN 等模型资源
+  base: './', // 相对路径部署时必备
+  assetsInclude: ['**/*.obj', '**/*.gltf', '**/*.bin'],
+  server: {
+    headers: {
+      'Access-Control-Allow-Origin': '*', // 🟡 开启 CORS 支持（开发环境）
+    },
+  },
 });
