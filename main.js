@@ -2,13 +2,12 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87CEEB);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 200000, 1e7);
-camera.position.set(0, 2600, 0);
+camera.position.set(0, 260000, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -35,22 +34,21 @@ sun.position.set(1e6, 5e6, -2e6);
 scene.add(sun);
 dirLight.position.copy(sun.position);
 
-// 🟡 外链地面模型加载
+// ✅ 地面模型加载（OBJLoader）
 let groundY = 0;
-loadGroundModel('https://github.com/toojahsee/Connect.github/raw/refs/heads/master/public/mountains.obj'); // 替换为实际 glb 链接
+loadGroundModel('https://spectacular-kelpie-114eb2.netlify.app/mountains.obj');
 
-async function loadGroundModel(url) {
-  const loader = new GLTFLoader();
+function loadGroundModel(url) {
+  const loader = new OBJLoader();
   loader.load(
     url,
-    (gltf) => {
-      const model = gltf.scene;
+    (model) => {
       model.traverse((child) => {
         if (child.isMesh) {
           child.receiveShadow = true;
         }
       });
-      // 缩放到目标尺寸
+
       const box = new THREE.Box3().setFromObject(model);
       const size = new THREE.Vector3();
       box.getSize(size);
@@ -58,8 +56,9 @@ async function loadGroundModel(url) {
       const targetSize = 8000000;
       const scale = targetSize / maxDim;
       model.scale.setScalar(scale);
-      model.position.y -= box.min.y; // 保持贴地
+      model.position.y -= box.min.y;
       groundY = 0;
+
       scene.add(model);
     },
     undefined,
@@ -72,6 +71,7 @@ const flightBounds = {
   yMin: 0, yMax: 1e7,
   zMin: -5e6, zMax: 5e6
 };
+
 const boundaryGeo = new THREE.BoxGeometry(
   flightBounds.xMax - flightBounds.xMin,
   flightBounds.yMax - flightBounds.yMin,
@@ -123,7 +123,6 @@ const objPath = '/models/IronMan.obj';
 const mtlPath = '/models/IronMan.mtl';
 const modelScale = 100000;
 
-// 模型加载并显示进度
 new MTLLoader().load(
   mtlPath,
   (mtl) => {
